@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2019.0.0-alpha-3"
+
     id "com.snobot.simulator.plugin.SnobotSimulatorPlugin" version "2018-1.0.0"
 }
 
@@ -25,6 +26,10 @@ deploy {
             debug = getDebugOrDefault(false)
         }
     }
+}
+
+wpi {
+    ctreVersion = "5.7.1.0"
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), CTRE Toolsuite (Talon SRX)
