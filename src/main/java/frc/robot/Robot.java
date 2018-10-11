@@ -49,13 +49,16 @@ public class Robot extends TimedRobot {
 
       //folded, want to go high, let wrist move first
       if (wristAngle < clearFirstStageMinimumAngle && targetHeight > clearFirstStageMaxHeight) {
+      
         elevatorHeight = Math.min(targetHeight, clearFirstStageMaxHeight);
         wristAngle = targetAngle;
       
       //want to fold, dont let wrist move until elevator good
       } else {
+        
         elevatorHeight = targetHeight;
         wristAngle = Math.max(targetAngle, clearFirstStageMinimumAngle);
+        
       }
     } else {
       elevatorHeight = targetHeight;
