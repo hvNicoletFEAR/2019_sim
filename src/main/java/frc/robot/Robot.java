@@ -25,14 +25,13 @@ public class Robot extends TimedRobot {
   int targetCycle = 0;
 
   boolean useJoystick;
-  double[] heightTargets = { 0, 10 };
-  double[] angleTargets = { 0, 180 };
+  double[] heightTargets = { 0, 10 , 6};
+  double[] angleTargets = { 0, 180 , 20};
 
-  boolean waitUp = false;
+  Double elevSpeed = .05;
+  Double wristSpeed = 1.0;
+  Double cycleTimeSeconds = 10.0;
 
-  Double elevSpeed = .05 / (waitUp ? 1.0 : 5.0);
-  Double wristSpeed = 1.0 / (waitUp ? 5.0 : 1.0);
-  Double cycleTimeSeconds = (waitUp ? 7.0 : 14.0);
   Double elevatorPrecision = .05;
   Double wristPrecision = 1.0;
 
@@ -133,12 +132,12 @@ public class Robot extends TimedRobot {
     boolean badZone = currentHeight >= clearFirstStageMaxHeight && currentAngle < clearFirstStageMinimumAngle;
 
     // folded, want to go high, let wrist move first
-    if (currentAngle <= clearFirstStageMinimumAngle && targetHeight >= clearFirstStageMaxHeight) {
+    if (currentAngle < clearFirstStageMinimumAngle && targetHeight >= clearFirstStageMaxHeight) {
         
         outputHeight = Math.min(targetHeight, clearFirstStageMaxHeight);
         outputAngle = targetAngle;
         
-    } else if (targetAngle <= clearFirstStageMinimumAngle && currentHeight >= clearFirstStageMaxHeight) {
+    } else if (targetAngle < clearFirstStageMinimumAngle && currentHeight >= clearFirstStageMaxHeight) {
     // want to fold, dont let wrist move until elevator good
       outputHeight = targetHeight;
       outputAngle = Math.max(targetAngle, clearFirstStageMinimumAngle);
@@ -150,14 +149,20 @@ public class Robot extends TimedRobot {
     // Dont let it crash
     outputHeight = Math.min(outputHeight, elevatorMaxHeight);
     outputHeight = Math.max(outputHeight, 0);
+
     outputAngle = Math.min(outputAngle, wristMaxRange);
     outputAngle = Math.max(outputAngle, 0);
 
     simulateMotion();
     roundAllNumbers();
+
+    if (badZone)
+      ifEverBadZone = true;
+
     System.out
         .println("Elevator C[" + currentHeight + "]   A[" + outputHeight + "]   T[" + targetHeight + "]" + "\t\tWrist C["
-            + currentAngle + "]   A[" + outputAngle + "]   T[" + targetAngle + "]" + "\t\tCorrect zone: " + !badZone);
+            + currentAngle + "]   A[" + outputAngle + "]   T[" + targetAngle + "]" + "\t\tCorrect zone: " + !badZone  + "\tBadZone has occured: " + ifEverBadZone);
   }
+  boolean ifEverBadZone = false;
 
 }
