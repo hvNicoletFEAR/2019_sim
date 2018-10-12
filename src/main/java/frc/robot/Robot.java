@@ -1,15 +1,14 @@
 package frc.robot;
 
-import java.io.*;
 import java.text.DecimalFormat;
-import java.util.List;
-import java.util.Arrays;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Robot extends TimedRobot {
 
@@ -42,6 +41,7 @@ public class Robot extends TimedRobot {
                                 // pointing outwards is 180
   Double clearFirstStageMaxHeight = 5.0;
   Double clearFirstStageMinimumAngle = 35.0;
+ 
 
   public void teleopInit() {
     if (joy.getRawButton(1))
@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     timer.start();
+    System.out.println("C [Current value]\t\tA [Allowed value]\t\tT [Target value]");
   }
 
   public void robotPeriodic() {
@@ -69,7 +70,6 @@ public class Robot extends TimedRobot {
 
   public void getTargetFromJoystick() {
     targetHeight = scaleBetween(-joy.getRawAxis(0), 0, elevatorMaxHeight, -1, 1);
-
     targetAngle = scaleBetween(joy.getRawAxis(3), 0, wristMaxRange, -1, 1);
   }
 
@@ -132,39 +132,32 @@ public class Robot extends TimedRobot {
     // If we're where we shouldn't be
     boolean badZone = currentHeight >= clearFirstStageMaxHeight && currentAngle < clearFirstStageMinimumAngle;
 
-    if (badZone) {
-      
-      // folded, want to go high, let wrist move first
-      if (currentAngle <= clearFirstStageMinimumAngle && targetHeight >= clearFirstStageMaxHeight) {
+    // folded, want to go high, let wrist move first
+    if (currentAngle <= clearFirstStageMinimumAngle && targetHeight >= clearFirstStageMaxHeight) {
         
         outputHeight = Math.min(targetHeight, clearFirstStageMaxHeight);
         outputAngle = targetAngle;
         
-      }
-      
-      // want to fold, dont let wrist move until elevator good
-      if (targetAngle <= clearFirstStageMinimumAngle && currentHeight >= clearFirstStageMaxHeight) {
-
-        outputHeight = targetHeight;
-        outputAngle = Math.max(targetAngle, clearFirstStageMinimumAngle + 5);
-      
-      }
-      //TODO Fix that when folding down, once wrist moves as much as it can, it thinks it can move more and starts to move, realizes it cant, then stops 
-
+    } else if (targetAngle <= clearFirstStageMinimumAngle && currentHeight >= clearFirstStageMaxHeight) {
+    // want to fold, dont let wrist move until elevator good
+      outputHeight = targetHeight;
+      outputAngle = Math.max(targetAngle, clearFirstStageMinimumAngle);
     } else {
       outputHeight = targetHeight;
       outputAngle = targetAngle;
     }
     
     // Dont let it crash
-    // outputHeight = Math.min(Math.abs(outputHeight), elevatorMaxHeight);
-    // outputAngle = Math.min(Math.abs(outputAngle), wristMaxRange);
-    
+    outputHeight = Math.min(outputHeight, elevatorMaxHeight);
+    outputHeight = Math.max(outputHeight, 0);
+    outputAngle = Math.min(outputAngle, wristMaxRange);
+    outputAngle = Math.max(outputAngle, 0);
+
     simulateMotion();
     roundAllNumbers();
     System.out
-        .println("Elevator [" + outputHeight + "]   [" + currentHeight + "]   [" + targetHeight + "]" + "\t\tWrist ["
-            + outputAngle + "]   [" + currentAngle + "]   [" + targetAngle + "]" + "\t\tCorrect zone: " + !badZone);
+        .println("Elevator C[" + currentHeight + "]   A[" + outputHeight + "]   T[" + targetHeight + "]" + "\t\tWrist C["
+            + currentAngle + "]   A[" + outputAngle + "]   T[" + targetAngle + "]" + "\t\tCorrect zone: " + !badZone);
   }
 
 }
