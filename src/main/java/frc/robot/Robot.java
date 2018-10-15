@@ -1,56 +1,40 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.Subsystem;
 
 public class Robot extends TimedRobot {
 
-  Timer timer = new Timer();
-  Joystick joy = new Joystick(0);
-  Spark L1, L2;
-  DifferentialDrive drive;
+  Subsystem sub = new Subsystem();
 
-  @Override
-  public void robotInit() {
-    L1 = new Spark(1);
-    L2 = new Spark(2);
-    
-    L2.setInverted(true);
-    
-    drive = new DifferentialDrive(L1,L2);
+  public void teleopInit()
+  {
+    sub.printPath();
   }
 
-  
-  @Override
-  public void robotPeriodic() {
+  public static StackTraceElement[] currentThread()
+  {
+    return Thread.currentThread().getStackTrace();
   }
+  /**
+	 * Thread.currentThread().getStackTrace();
+	 */
+	public static String trace(StackTraceElement e[]) {
 
- 
-  @Override
-  public void autonomousInit() {
-    timer.stop();
-    timer.reset();
-    timer.start();
-  }
+		String retval = "";
+		try {
+			for (int i = e.length - 5; i > 1; i--) {
+				retval += e[i].getMethodName();
 
-  @Override
-  public void autonomousPeriodic() {
-    if (timer.get() <= 5)
-      drive.arcadeDrive(1.0,0.0);
-    else
-      drive.arcadeDrive(0,0);
-  }
+				if (i != 2)
+					retval += ".";
+			}
+		} catch (Exception ex) {
+			System.out.println(
+					"Max was a dummy that tried to write something to make his life easier but he made it much much harder");
+			// ex.printStackTrace();
+		}
 
-  
-  @Override
-  public void teleopPeriodic() {
-    drive.arcadeDrive(-joy.getRawAxis(0), joy.getRawAxis(4));
-  }
-
-  @Override
-  public void testPeriodic() {
+		return retval;
   }
 }
