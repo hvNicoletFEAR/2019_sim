@@ -20,12 +20,25 @@ public class Robot extends TimedRobot {
   
   /** Over the head, don't hit floor forwards*/ 
   // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, true), new MovementState(0, 90, true)};
-  
+  /** Result: Raise elevator to flip direction, wait for wrist to move up before lowering elevator*/
+
   /** Over the head, don't hit floor backwards*/ 
-  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, false), new MovementState(0, 90, false)};
-  
+  MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, false), new MovementState(0, 90, false)};
+  /** Result: Raise elevator to flip direction, wait for wrist to move up before lowering elevator*/
+
   /**Over the head, try to crush arm into elevator */
-  MovementState[] targets = { new MovementState(0.0, 90, true), new MovementState(0, 90, false), new MovementState(0, 35, true), new MovementState(0, 30, true)};
+  // MovementState[] targets = { new MovementState(0.0, 90, true), new MovementState(0, 90, false), new MovementState(0, 35, true), new MovementState(0, 30, true)};
+  /** Result: Raise elevator to flip direction, don't allow wrist to move inside elevator*/
+
+  /**Straight up, try to go straight down */
+  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(9, 0, true), new MovementState(0, 0, true)};
+  /** Result: Limit elevator to not lower and crush arm on top of itself */
+
+
+  /**Intaking level, try to angle down**/
+  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 120, true)};
+  /** Result: Raise elevator so we can reach desired target angle */
+
 
   boolean ifEverBadZone = false;
 
