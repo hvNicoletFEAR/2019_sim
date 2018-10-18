@@ -17,7 +17,15 @@ public class Robot extends TimedRobot {
 
   boolean useJoystick;
 
-  MovementState[] targets = { new MovementState(0.0, 120.0, true), new MovementState(0.0, 50, false) };
+  
+  /** Over the head, don't hit floor forwards*/ 
+  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, true), new MovementState(0, 90, true)};
+  
+  /** Over the head, don't hit floor backwards*/ 
+  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, false), new MovementState(0, 90, false)};
+  
+  /**Over the head, try to crush arm into elevator */
+  MovementState[] targets = { new MovementState(0.0, 90, true), new MovementState(0, 90, false), new MovementState(0, 35, true), new MovementState(0, 30, true)};
 
   boolean ifEverBadZone = false;
 
@@ -139,96 +147,67 @@ public class Robot extends TimedRobot {
 
     // If we're where we shouldn't be
     boolean badZone = mCurrent.height < kElevatorMinHeightForFlip
-        && Math.abs(mCurrent.angle) < kWristMinRangeIfBelowFlipHeight;
-    badZone |= mCurrent.height < kElevatorFloorLevel && Math.abs(mCurrent.angle) > kWristMaxRangeIfBelowFloorLevel;
+        && mCurrent.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight;
+    badZone |= mCurrent.height < kElevatorFloorLevel && mCurrent.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel;
 
-    boolean noLimit = true;
-
-    // Trying to raise arm too high or flip all the way over, and below flipping
-    // height, limit arm
-    if ((mTarget.getAbsoluteAngle() < kElevatorMinHeightForFlip || mOutput.getPosition() != mTarget.getPosition())
-        && mCurrent.height < kElevatorMinHeightForFlip) {
+    //Flip over
+    if (mCurrent.getPosition() != mTarget.getPosition())
+    {
+      mOutput.height = Math.max(mTarget.height, kElevatorMinHeightForFlip);
       
-
-      mOutput.height = mTarget.height;
-
-      // Limit depending if we're forward or backwards
-      if (mCurrent.getPosition() == Position.FORWARDS) {
-        mOutput.angle = Math.max(mTarget.angle, kWristMinRangeIfBelowFlipHeight);
-        mOutput.angle = Math.min(mTarget.angle, kWristMax);
-      } else {
-        mOutput.angle = Math.min(mTarget.angle, -kWristMinRangeIfBelowFlipHeight);
-        mOutput.angle = Math.max(mTarget.angle, -kWristMax);
-      }
-
+      if (mCurrent.height < kElevatorMinHeightForFlip)
+        mOutput.setAbsoluteAngleLimit(mTarget.height, kWristMinRangeIfBelowFlipHeight, false);
+      else
+        mOutput.angle = mTarget.angle;
     } 
     
-    if (mTarget.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel && mCurrent.height < kElevatorFloorLevel) {
-      
-      if (mCurrent.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel)
-      {
-        mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
-      }
-      
+    //Mid flip
+    else if (mCurrent.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight)
+    {
+      mOutput.height = Math.max(mTarget.height, kElevatorMinHeightForFlip);
 
-      if (mCurrent.getPosition() == Position.FORWARDS)
-      {
-        mOutput.height 
-      }
-
-     } else {
-      mOutput.height = mTarget.height;
       mOutput.angle = mTarget.angle;
     }
+    
+    // Trying to point down
+      else if (mTarget.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel) {
+      // Limit height to as low as it can be and still point down
+      mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
 
-    /**
-     * if (mTarget.getPosition() != mCurrent.getPosition() && mCurrent.height <
-     * kElevatorMinHeightForFlip) { mOutput.height = Math.max(mTarget.height,
-     * kElevatorMinHeightForFlip);
-     * 
-     * if (mCurrent.getPosition() == Position.BACKWARDS) mOutput.angle =
-     * Math.min(mTarget.angle, -kWristMinRangeIfBelowFlipHeight); else mOutput.angle
-     * = Math.max(mTarget.angle, kWristMinRangeIfBelowFlipHeight); // } // else if
-     * (Math.abs(mTarget.angle) > kWristMaxRangeIfBelowFloorLevel && mCurrent.height
-     * > kElevatorFloorLevel) { // // Dont drive into the floor // mOutput.height =
-     * Math.min(mTarget.height, kElevatorFloorLevel);
-     * 
-     * // if (mTarget.angle < 0) // mOutput.angle = Math.max(mTarget.angle,
-     * -kWristMaxRangeIfBelowFloorLevel); // else // mOutput.angle =
-     * Math.min(mTarget.angle, kWristMaxRangeIfBelowFloorLevel); } else {
-     * mOutput.angle = mTarget.angle; mOutput.height = mTarget.height; }
-     **/
+      // If we aren't to that height yet, limit to floor level
+      if (mCurrent.height < kElevatorFloorLevel) {
+        mOutput.setAbsoluteAngleLimit(mTarget.angle, kWristMaxRangeIfBelowFloorLevel, true);
+      } else {
+        mOutput.angle = mTarget.angle;
+      }
 
-    // Hold wrist if can't flip over yet, or is trying to fold too early
-    // if (mCurrent.height < kElevatorMinHeightForFlip && mCurrent.angle <
-    // kWristMinRangeIfBelowFlipHeight) {
-    // System.out.println("B");
-    // mOutput.height = mTarget.height;
-    // mOutput.angle = mTarget.angle;
-    // }
+    //Are pointing down, need to point up (implied target less than max floor level range)
+    } else if (mCurrent.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel) {
+          //Raise  
+          mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
+          mOutput.angle = mTarget.angle;
 
-    // Want to flip over
-    // if (mTarget.forwards != mCurrent.forwards) {
-    // //Limit height until we are flipped over
-    // mOutput.height = Math.min(mTarget.height, kElevatorMinHeightForFlip);
+      
+    //Impossible move, don't raise elevator, just limit arm
+    } else if (mTarget.height < kElevatorFloorLevel && mTarget.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight) {
+      mOutput.height = mTarget.height;
 
-    // //If we're not ready to flip, don't let wrist flip
-    // if (mCurrent.height < kElevatorMinHeightForFlip){
-    // mOutput.angle = Math.min(mTarget.angle, kWristMinRangeIfBelowFlipHeight);
-    // } else {
-    // //if we are ready to flip, let it flip
-    // mOutput.angle = Math.min(mTarget.angle, kWristMinRangeIfAboveFlipHeight);
-    // }
-    // }
+      mOutput.setAbsoluteAngleLimit(mTarget.angle, kWristMinRangeIfBelowFlipHeight, false);
+
+    // No problem, just move
+    } else {
+      mOutput.set(mTarget);
+    }
 
     // // Dont try something dumb
     mOutput.height = Math.min(mOutput.height, kElevatorMaxHeight);
     mOutput.height = Math.max(mOutput.height, kElevatorMinHeight);
 
     mOutput.angle = Math.min(mOutput.angle, kWristMax);
-    mOutput.angle = Math.max(mOutput.angle, 0);
+    mOutput.angle = Math.max(mOutput.angle, -kWristMax);
 
     simulateMotion();
+
     roundAllNumbers();
 
     if (badZone)

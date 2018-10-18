@@ -17,6 +17,30 @@ public class MovementState {
       this.angle = angle;
     }
 
+    public void set(MovementState other)
+    {
+      this.height = other.height;
+      this.angle = other.angle;
+    }
+
+    public void setAbsoluteAngleLimit(double target, double limit, boolean dontGoBelow)
+    {
+      if (this.getPosition() == Position.FORWARDS) {
+
+        if (dontGoBelow)
+          this.angle = Math.min(target, limit);
+        else
+          this.angle = Math.max(target, limit);
+
+      } else {
+
+        if (dontGoBelow)
+          this.angle = Math.max(target, -limit);
+        else
+          this.angle = Math.min(target, -limit);
+      }
+    }
+
     public Double getAbsoluteAngle()
     {
       return Math.abs(this.angle);
