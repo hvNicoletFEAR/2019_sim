@@ -126,6 +126,17 @@ public class Robot extends TimedRobot {
     return joy.getRawButton(b.number);
   }
 
+  /**
+   * A is set direction to forward
+   * B is set direction to behind
+   * 
+   * X = Intake
+   * B = Switch
+   * LB = Scale don't rotate arm
+   * RB = Scale rotate arm
+   * 
+   * None is holster 
+   */
   public void getTargetFromJoystick() {
     if (getButton(Buttons.A))
       defaultJoyLocationForward = true;
