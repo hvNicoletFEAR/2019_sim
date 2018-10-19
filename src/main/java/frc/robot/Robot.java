@@ -1,11 +1,11 @@
 package frc.robot;
 
 import java.text.DecimalFormat;
+import java.util.zip.Deflater;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.MovementState.Position;
 
 public class Robot extends TimedRobot {
 
@@ -16,29 +16,43 @@ public class Robot extends TimedRobot {
   int targetCycle = 0;
 
   boolean useJoystick;
+  boolean defaultJoyLocationForward = true;
 
-  
-  /** Over the head, don't hit floor forwards*/ 
-  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, true), new MovementState(0, 90, true)};
-  /** Result: Raise elevator to flip direction, wait for wrist to move up before lowering elevator*/
+  /** Over the head, don't hit floor forwards */
+  // MovementState[] targets = {new MovementState(0, 90, true), new
+  // MovementState(0, 90, false), new MovementState(3, 130, true), new
+  // MovementState(0, 90, true)};
+  /**
+   * Result: Raise elevator to flip direction, wait for wrist to move up before
+   * lowering elevator
+   */
 
-  /** Over the head, don't hit floor backwards*/ 
-  MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 90, false), new MovementState(3, 130, false), new MovementState(0, 90, false)};
-  /** Result: Raise elevator to flip direction, wait for wrist to move up before lowering elevator*/
+  /** Over the head, don't hit floor backwards */
+  MovementState[] targets = { new MovementState(0, 90, true), new MovementState(0, 90, false),
+      new MovementState(3, 130, false), new MovementState(0, 90, false) };
+  /**
+   * Result: Raise elevator to flip direction, wait for wrist to move up before
+   * lowering elevator
+   */
 
-  /**Over the head, try to crush arm into elevator */
-  // MovementState[] targets = { new MovementState(0.0, 90, true), new MovementState(0, 90, false), new MovementState(0, 35, true), new MovementState(0, 30, true)};
-  /** Result: Raise elevator to flip direction, don't allow wrist to move inside elevator*/
+  /** Over the head, try to crush arm into elevator */
+  // MovementState[] targets = { new MovementState(0.0, 90, true), new
+  // MovementState(0, 90, false), new MovementState(0, 35, true), new
+  // MovementState(0, 30, true)};
+  /**
+   * Result: Raise elevator to flip direction, don't allow wrist to move inside
+   * elevator
+   */
 
-  /**Straight up, try to go straight down */
-  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(9, 0, true), new MovementState(0, 0, true)};
+  /** Straight up, try to go straight down */
+  // MovementState[] targets = {new MovementState(0, 90, true), new
+  // MovementState(9, 0, true), new MovementState(0, 0, true)};
   /** Result: Limit elevator to not lower and crush arm on top of itself */
 
-
-  /**Intaking level, try to angle down**/
-  // MovementState[] targets = {new MovementState(0, 90, true), new MovementState(0, 120, true)};
+  /** Intaking level, try to angle down **/
+  // MovementState[] targets = {new MovementState(0, 90, true), new
+  // MovementState(0, 120, true)};
   /** Result: Raise elevator so we can reach desired target angle */
-
 
   boolean ifEverBadZone = false;
 
@@ -98,9 +112,36 @@ public class Robot extends TimedRobot {
     return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
   }
 
+  public enum Buttons {
+    A(1), B(2), X(3), Y(4), LB(5), RB(6), BACK(7), START(8);
+
+    private int number;
+
+    private Buttons(int value) {
+      number = value;
+    }
+  }
+
+  public boolean getButton(Buttons b) {
+    return joy.getRawButton(b.number);
+  }
+
   public void getTargetFromJoystick() {
-    mTarget.height = scaleBetween(-joy.getRawAxis(0), kElevatorMinHeight, kElevatorMaxHeight, -1, 1);
-    mTarget.angle = scaleBetween(joy.getRawAxis(3), kWristMin, kWristMax, -1, 1);
+    if (getButton(Buttons.A))
+      defaultJoyLocationForward = true;
+    else if (getButton(Buttons.Y))
+      defaultJoyLocationForward = false;
+    else if (getButton(Buttons.X))
+      mTarget = new MovementState(0, 90, defaultJoyLocationForward);
+    else if (getButton(Buttons.B))
+      mTarget = new MovementState(3, 110, defaultJoyLocationForward);
+    else if (getButton(Buttons.LB))
+      mTarget = new MovementState(9.5, 35, defaultJoyLocationForward);
+    else if (getButton(Buttons.RB))
+      mTarget = new MovementState(9.5, 90, defaultJoyLocationForward);
+    else {
+      mTarget = new MovementState(0, 35, defaultJoyLocationForward);
+    }
   }
 
   public void format(MovementState n) {
@@ -163,27 +204,25 @@ public class Robot extends TimedRobot {
         && mCurrent.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight;
     badZone |= mCurrent.height < kElevatorFloorLevel && mCurrent.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel;
 
-    //Flip over
-    if (mCurrent.getPosition() != mTarget.getPosition())
-    {
+    // Flip over
+    if (mCurrent.getPosition() != mTarget.getPosition()) {
       mOutput.height = Math.max(mTarget.height, kElevatorMinHeightForFlip);
-      
+
       if (mCurrent.height < kElevatorMinHeightForFlip)
         mOutput.setAbsoluteAngleLimit(mTarget.height, kWristMinRangeIfBelowFlipHeight, false);
       else
         mOutput.angle = mTarget.angle;
-    } 
-    
-    //Mid flip
-    else if (mCurrent.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight)
-    {
+    }
+
+    // Mid flip
+    else if (mCurrent.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight) {
       mOutput.height = Math.max(mTarget.height, kElevatorMinHeightForFlip);
 
       mOutput.angle = mTarget.angle;
     }
-    
+
     // Trying to point down
-      else if (mTarget.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel) {
+    else if (mTarget.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel) {
       // Limit height to as low as it can be and still point down
       mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
 
@@ -194,20 +233,20 @@ public class Robot extends TimedRobot {
         mOutput.angle = mTarget.angle;
       }
 
-    //Are pointing down, need to point up (implied target less than max floor level range)
+      // Are pointing down, need to point up (implied target less than max floor level
+      // range)
     } else if (mCurrent.getAbsoluteAngle() > kWristMaxRangeIfBelowFloorLevel) {
-          //Raise  
-          mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
-          mOutput.angle = mTarget.angle;
+      // Raise
+      mOutput.height = Math.max(mTarget.height, kElevatorFloorLevel);
+      mOutput.angle = mTarget.angle;
 
-      
-    //Impossible move, don't raise elevator, just limit arm
+      // Impossible move, don't raise elevator, just limit arm
     } else if (mTarget.height < kElevatorFloorLevel && mTarget.getAbsoluteAngle() < kWristMinRangeIfBelowFlipHeight) {
       mOutput.height = mTarget.height;
 
       mOutput.setAbsoluteAngleLimit(mTarget.angle, kWristMinRangeIfBelowFlipHeight, false);
 
-    // No problem, just move
+      // No problem, just move
     } else {
       mOutput.set(mTarget);
     }
