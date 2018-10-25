@@ -1,8 +1,9 @@
 # frc_3452_2019_sim
 Currently using SnobotSim, a simple project used for testing light program.
 
-# How To Use
-Setup like normal project, until SnobotSim is updated, Talon functions disabled. Use Sparks, other basic PWM Controllers to simulate.
-Run 'gradlew runSnobotSim' in project folder to start simulation.
+# Purpose
+Simulate logic neccesary to write code for a manipulator similar to 254 - The Cheesy Poofs in 2018.
 
-[SnotbotSim README](https://github.com/pjreiniger/SnobotSim/blob/dev-2019/README.md)
+Wrist folds inside first stage of elevator. If wrist is folded and height raised too high, collision.
+
+If too high and wrist folds, collision.
