@@ -1,8 +1,11 @@
 # frc_3452_2019_sim
 Currently using SnobotSim, a simple project used for testing light program.
 
-# How To Use
-Setup like normal project, until SnobotSim is updated, Talon functions disabled. Use Sparks, other basic PWM Controllers to simulate.
-Run 'gradlew runSnobotSim' in project folder to start simulation.
+# Purpose
+Simulate a manipulator in which an arm / wrist pivots on an elevator, and for the wrist / arm to go to the backside of the robot, the elevator must move to allow clearance. (Similar to 2337 - EngiNERDs in 2018)
 
-[SnotbotSim README](https://github.com/pjreiniger/SnobotSim/blob/dev-2019/README.md)
+If trying to flip over, must raise elevator before flip
+
+If arm straight up, don't run elevator down.
+
+If arm pointing towards floor and we go down too low, tip of arm will crash into floor.
