@@ -13,14 +13,50 @@ public class Robot extends TimedRobot {
   Spark L1, L2;
   DifferentialDrive drive;
 
+  boolean[] boolArray = { false, true, true, false, true };
+  Spark[] sparkArray = { L1, L2 };
+  String[] stringArray = { "A", "B", "C", "D" };
+  int[] intArray = { 2, 4, 5, 5 };
+  Joystick[] joystickArray = { joy, new Joystick(1) };
+  double[] array = { 1.1, 2.2, 3.3, 4.4, 5.5 };
+
   @Override
   public void robotInit() {
-    L1 = new Spark(1);
-    L2 = new Spark(2);
 
-    L2.setInverted(true);
+    for (int i = 0; i < intArray.length; i++) {
+      System.out.println(intArray[i]);
+    }
+    for (int i = 0; i < intArray.length; i++) {
+      intArray[i] = intArray[i] * 2;
 
-    drive = new DifferentialDrive(L1, L2);
+    }
+    for (int i = 0; i < intArray.length; i++) {
+      intArray[i] = intArray[i] + 3;
+    }
+
+    for (int i = 0; i < intArray.length; i++) {
+      System.out.println(intArray[i]);
+    }
+
+    // System.out.println("BoolArray: " + boolArray.length);
+    // System.out.println("SparkArray: " + sparkArray.length);
+
+    // 1 + 2 = 3;
+    // "A" + "B" = "AB";
+    // "A" + 2 = "A2";
+    // "A" + 2 + 3 = "A23";
+    // "A" + (2 + 3) = "A5";
+
+    // System.out.println(stringArray[0]);
+    // System.out.println(array[2]);
+  }
+
+  @Override
+  public void disabledInit() {
+  }
+
+  @Override
+  public void disabledPeriodic() {
   }
 
   @Override
@@ -29,22 +65,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    timer.stop();
-    timer.reset();
-    timer.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    if (timer.get() <= 5)
-      drive.arcadeDrive(1.0, 0.0);
-    else
-      drive.arcadeDrive(0, 0);
   }
 
   @Override
   public void teleopPeriodic() {
-    drive.arcadeDrive(-joy.getRawAxis(0), joy.getRawAxis(4));
   }
 
   @Override
