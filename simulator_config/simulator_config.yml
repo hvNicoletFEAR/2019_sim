@@ -1,0 +1,31 @@
+!!com.snobot.simulator.config.v1.SimulatorConfigV1
+mAccelerometers: []
+mAnalogIn: []
+mAnalogOut: []
+mDefaultI2CWrappers: {}
+mDefaultSpiWrappers: {}
+mDigitalIO:
+- mHandle: 0
+  mName: Digital IO 0
+  mType: com.snobot.simulator.module_wrapper.wpi.WpiDigitalIoWrapper
+- mHandle: 1
+  mName: Digital IO 1
+  mType: com.snobot.simulator.module_wrapper.wpi.WpiDigitalIoWrapper
+mEncoders:
+- mConnectedSpeedControllerHandle: 3
+  mHandle: 0
+  mName: Encoder 0
+  mType: com.snobot.simulator.module_wrapper.wpi.WpiEncoderWrapper
+mGyros: []
+mPwm:
+- mHandle: 3
+  mMotorModelConfig: null
+  mMotorSimConfig: null
+  mName: Speed Controller 3
+  mType: com.snobot.simulator.module_wrapper.wpi.WpiPwmWrapper
+mRelays: []
+mSimulatorComponents: []
+mSolenoids:
+- mHandle: 3
+  mName: Solenoid 3
+  mType: com.snobot.simulator.module_wrapper.wpi.WpiSolenoidWrapper
